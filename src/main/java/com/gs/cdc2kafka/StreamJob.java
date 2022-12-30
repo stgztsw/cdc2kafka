@@ -1,6 +1,5 @@
 package com.gs.cdc2kafka;
 
-import com.google.common.base.Preconditions;
 import com.gs.cdc2kafka.format.FormatFunction;
 import com.gs.cdc2kafka.kafka.KafkaTopicSelector;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
@@ -15,6 +14,7 @@ import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.util.Preconditions;
 
 import java.util.Properties;
 

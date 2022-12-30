@@ -119,6 +119,10 @@
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>commons-lang3</artifactId>
+          <groupId>org.apache.commons</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>commons-math3</artifactId>
           <groupId>org.apache.commons</groupId>
         </exclusion>
@@ -129,6 +133,10 @@
         <exclusion>
           <artifactId>jsr305</artifactId>
           <groupId>com.google.code.findbugs</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-shaded-force-shading</artifactId>
+          <groupId>org.apache.flink</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -147,6 +155,10 @@
           <groupId>org.apache.flink</groupId>
         </exclusion>
         <exclusion>
+          <artifactId>flink-shaded-guava</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+        <exclusion>
           <artifactId>flink-core</artifactId>
           <groupId>org.apache.flink</groupId>
         </exclusion>
@@ -157,6 +169,10 @@
         <exclusion>
           <artifactId>jsr305</artifactId>
           <groupId>com.google.code.findbugs</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-shaded-force-shading</artifactId>
+          <groupId>org.apache.flink</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -186,6 +202,10 @@
           <artifactId>jsr305</artifactId>
           <groupId>com.google.code.findbugs</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>flink-shaded-force-shading</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -213,6 +233,10 @@
         <exclusion>
           <artifactId>jsr305</artifactId>
           <groupId>com.google.code.findbugs</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-shaded-force-shading</artifactId>
+          <groupId>org.apache.flink</groupId>
         </exclusion>
       </exclusions>
     </dependency>
@@ -246,6 +270,30 @@
           <artifactId>jsr305</artifactId>
           <groupId>com.google.code.findbugs</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>flink-shaded-force-shading</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-connector-kafka</artifactId>
+      <version>1.15.2</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>flink-connector-base</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>kafka-clients</artifactId>
+          <groupId>org.apache.kafka</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-shaded-force-shading</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -265,6 +313,38 @@
       <artifactId>log4j-core</artifactId>
       <version>2.17.1</version>
       <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.ververica</groupId>
+      <artifactId>flink-connector-mysql-cdc</artifactId>
+      <version>2.3-SNAPSHOT</version>
+      <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>flink-connector-debezium</artifactId>
+          <groupId>com.ververica</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>debezium-connector-mysql</artifactId>
+          <groupId>io.debezium</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>esri-geometry-api</artifactId>
+          <groupId>com.esri.geometry</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>HikariCP</artifactId>
+          <groupId>com.zaxxer</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>awaitility</artifactId>
+          <groupId>org.awaitility</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>flink-shaded-guava</artifactId>
+          <groupId>org.apache.flink</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
   <properties>
