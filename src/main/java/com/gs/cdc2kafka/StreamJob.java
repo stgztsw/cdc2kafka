@@ -30,6 +30,8 @@ public class StreamJob {
   private final static String STARTUP_MODE = "startupMode";
   private final static String TIMESTAMP = "timestamp";
   private final static String TRANSACTIONAL_ID = "transactional.id";
+  private final static String JOB_NAME = "job.name";
+  private final static String SERVER_ID = "server.id";
 
   public static void main(String[] args) throws Exception {
     ParameterTool params = ParameterTool.fromArgs(args);
@@ -38,6 +40,7 @@ public class StreamJob {
         .hostname(params.get(HOST))
         .port(params.getInt(PORT, 3306))
         .scanNewlyAddedTableEnabled(true)
+        .serverId(params.get(SERVER_ID))
         .databaseList(params.get(DB_NAME)) // 设置捕获的数据库， 如果需要同步整个数据库，请将 tableList 设置为 ".*".
         .tableList(params.get(TABLES)) // 设置捕获的表
         .username(params.get(USER_NAME))
@@ -65,7 +68,7 @@ public class StreamJob {
             .setTransactionalIdPrefix(params.get(TRANSACTIONAL_ID))
             .setKafkaProducerConfig(properties)
             .build());
-    env.execute("mysqlCdc2kafka");
+    env.execute(params.get(JOB_NAME));
   }
 
   private static void init(StreamExecutionEnvironment env) {
@@ -97,6 +100,8 @@ public class StreamJob {
   }
 
   private static void checkParam(ParameterTool params) {
+    Preconditions.checkNotNull(params.get(JOB_NAME), "job name can not be null");
+    Preconditions.checkNotNull(params.get(SERVER_ID), "server id can not be null");
     Preconditions.checkNotNull(params.get(HOST), "db host can not be null");
     Preconditions.checkNotNull(params.get(DB_NAME), "db name can not be null");
     Preconditions.checkNotNull(params.get(TABLES), "tables can not be null");
