@@ -71,7 +71,6 @@ public class StreamJob {
   }
 
   private static void init(StreamExecutionEnvironment env) {
-    env.setParallelism(1);
     env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
     env.getCheckpointConfig().setCheckpointInterval(10*1000);
     env.getCheckpointConfig().setCheckpointTimeout(10*60*1000);
