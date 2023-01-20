@@ -81,6 +81,7 @@
                     <exclude>META-INF/*.SF</exclude>
                     <exclude>META-INF/*.DSA</exclude>
                     <exclude>META-INF/*.RSA</exclude>
+                    <exclude>log4j2.xml</exclude>
                   </excludes>
                 </filter>
               </filters>
@@ -316,26 +317,10 @@
     </dependency>
     <dependency>
       <groupId>com.ververica</groupId>
-      <artifactId>flink-connector-mysql-cdc</artifactId>
+      <artifactId>flink-sql-connector-mysql-cdc</artifactId>
       <version>2.3-SNAPSHOT</version>
       <scope>provided</scope>
       <exclusions>
-        <exclusion>
-          <artifactId>flink-connector-debezium</artifactId>
-          <groupId>com.ververica</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>debezium-connector-mysql</artifactId>
-          <groupId>io.debezium</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>esri-geometry-api</artifactId>
-          <groupId>com.esri.geometry</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>HikariCP</artifactId>
-          <groupId>com.zaxxer</groupId>
-        </exclusion>
         <exclusion>
           <artifactId>awaitility</artifactId>
           <groupId>org.awaitility</groupId>

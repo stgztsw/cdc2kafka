@@ -11,8 +11,9 @@ public class KafkaTopicSelector implements TopicSelector<String> {
   @Override
   public String apply(String s) {
     JsonObject jsonObject = gson.fromJson(s, JsonObject.class);
-    String dbName = jsonObject.get("cdc_db_name").getAsString();
-    String tableName = jsonObject.get("cdc_table_name").getAsString();
+    JsonObject meta = jsonObject.getAsJsonObject("cdc_meta");
+    String dbName = meta.get("db_name").getAsString();
+    String tableName = meta.get("table_name").getAsString();
     return String.format("bigdata.ods.%s.%s", toHump(dbName), toHump(tableName));
   }
 

@@ -1,11 +1,10 @@
 package com.gs.cdc2kafka;
 
-import com.gs.cdc2kafka.format.FormatFunction;
+import com.gs.cdc2kafka.format.GsDebeziumDeserializeSchema;
 import com.gs.cdc2kafka.kafka.KafkaTopicSelector;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
 import com.ververica.cdc.connectors.mysql.source.MySqlSourceBuilder;
 import com.ververica.cdc.connectors.mysql.table.StartupOptions;
-import com.ververica.cdc.debezium.JsonDebeziumDeserializationSchema;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.serialization.SimpleStringSchema;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -32,6 +31,7 @@ public class StreamJob {
   private final static String TRANSACTIONAL_ID = "transactional.id";
   private final static String JOB_NAME = "job.name";
   private final static String SERVER_ID = "server.id";
+  private final static String SERVER_TIME_ZONE = "Asia/Shanghai";
 
   public static void main(String[] args) throws Exception {
     ParameterTool params = ParameterTool.fromArgs(args);
@@ -45,7 +45,8 @@ public class StreamJob {
         .tableList(params.get(TABLES)) // 设置捕获的表
         .username(params.get(USER_NAME))
         .password(params.get(PASSWORD))
-        .deserializer(new JsonDebeziumDeserializationSchema()); // 将 SourceRecord 转换为 JSON 字符串
+        .serverTimeZone(SERVER_TIME_ZONE)
+        .deserializer(new GsDebeziumDeserializeSchema(SERVER_TIME_ZONE)); // 将 SourceRecord 转换为 JSON 字符串
 
     MySqlSource<String> mySqlSource = buildStartup(builder, params).build();
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -56,8 +57,6 @@ public class StreamJob {
     properties.put("transaction.timeout.ms", 15*60*1000);
     env
         .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
-        .setParallelism(1)
-        .map(new FormatFunction())
         .sinkTo(KafkaSink.<String>builder()
             .setBootstrapServers(params.get(BOOTSTRAP_SERVERS))
             .setRecordSerializer(KafkaRecordSerializationSchema.builder()
@@ -72,6 +71,7 @@ public class StreamJob {
   }
 
   private static void init(StreamExecutionEnvironment env) {
+    env.setParallelism(1);
     env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
     env.getCheckpointConfig().setCheckpointInterval(10*1000);
     env.getCheckpointConfig().setCheckpointTimeout(10*60*1000);
