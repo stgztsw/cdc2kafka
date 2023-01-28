@@ -2,6 +2,8 @@ package com.gs.cdc2kafka.kafka;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.connector.kafka.sink.TopicSelector;
 
 public class KafkaTopicSelector implements TopicSelector<String> {
@@ -17,12 +19,16 @@ public class KafkaTopicSelector implements TopicSelector<String> {
     return String.format("bigdata.ods.%s.%s", toHump(dbName), toHump(tableName));
   }
 
-  private String toHump(String s) {
+  @VisibleForTesting
+  protected String toHump(String s) {
     String[] names = s.split("_");
     StringBuilder sb = new StringBuilder();
     sb.append(names[0]);
     for (int i=1; i<names.length; i++) {
-      sb.append(names[i].substring(0,1).toUpperCase() + names[i].substring(1));
+      if (i == names.length -1 && StringUtils.isNumeric(names[i])) {
+        continue;
+      }
+      sb.append(names[i].substring(0, 1).toUpperCase()).append(names[i].substring(1));
     }
     return sb.toString();
   }
