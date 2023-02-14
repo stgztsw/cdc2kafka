@@ -24,22 +24,23 @@ public class GsDebeziumDeserializeSchema implements DebeziumDeserializationSchem
 
   @Override
   public void deserialize(SourceRecord record, Collector<String> out) throws Exception {
+    Envelope.Operation op = Envelope.operationFor(record);
     Struct value = (Struct) record.value();
     Schema valueSchema = record.valueSchema();
     //delete场景
     if (value.getStruct(Envelope.FieldName.AFTER) == null) {
       return;
     }
-    ObjectNode insert = extractAfterRow(value, valueSchema);
+    ObjectNode insert = extractAfterRow(value, valueSchema, op);
     out.collect(insert.toString());
   }
 
-  private ObjectNode extractAfterRow(Struct value, Schema valueSchema) throws Exception {
+  private ObjectNode extractAfterRow(Struct value, Schema valueSchema, Envelope.Operation op) throws Exception {
     Schema afterSchema = valueSchema.field(Envelope.FieldName.AFTER).schema();
     Struct source = value.getStruct(Envelope.FieldName.SOURCE);
     Struct after = value.getStruct(Envelope.FieldName.AFTER);
     ObjectNode objectNode = jsonConverter.convert2ObjectNode(afterSchema, after);
-    jsonConverter.addMeta(source, objectNode);
+    jsonConverter.addMeta(source, objectNode, op);
     return objectNode;
   }
 

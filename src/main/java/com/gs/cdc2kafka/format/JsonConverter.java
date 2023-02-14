@@ -6,6 +6,7 @@ import com.ververica.cdc.connectors.shaded.org.apache.kafka.connect.data.Schema;
 import com.ververica.cdc.connectors.shaded.org.apache.kafka.connect.data.Struct;
 import com.ververica.cdc.connectors.shaded.org.apache.kafka.connect.errors.DataException;
 import com.ververica.cdc.debezium.utils.TemporalConversions;
+import io.debezium.data.Envelope;
 import io.debezium.time.Date;
 import io.debezium.time.MicroTime;
 import io.debezium.time.MicroTimestamp;
@@ -230,12 +231,13 @@ public class JsonConverter implements Serializable {
     return DateTimeUtils.toLocalTime(timeInt);
   }
 
-  public void addMeta(Struct source, ObjectNode objectNode) {
+  public void addMeta(Struct source, ObjectNode objectNode, Envelope.Operation op) {
     String db = source.getString("db");
     String table = source.getString("table");
     ObjectNode cdcMeta = JSON_NODE_FACTORY.objectNode();
     cdcMeta.set("db_name", JSON_NODE_FACTORY.textNode(db));
     cdcMeta.set("table_name", JSON_NODE_FACTORY.textNode(table));
+    cdcMeta.set("operation", JSON_NODE_FACTORY.textNode(op.name()));
     objectNode.set("cdc_meta", cdcMeta);
   }
 }

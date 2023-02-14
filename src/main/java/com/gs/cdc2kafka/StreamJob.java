@@ -28,7 +28,6 @@ public class StreamJob {
   private final static String BOOTSTRAP_SERVERS = "bootstrap.servers";
   private final static String STARTUP_MODE = "startupMode";
   private final static String TIMESTAMP = "timestamp";
-  private final static String TRANSACTIONAL_ID = "transactional.id";
   private final static String JOB_NAME = "job.name";
   private final static String SERVER_ID = "server.id";
   private final static String SERVER_TIME_ZONE = "Asia/Shanghai";
@@ -55,6 +54,7 @@ public class StreamJob {
     Properties properties = new Properties();
     //transaction超时时间
     properties.put("transaction.timeout.ms", 15*60*1000);
+    properties.put("max.request.size", 52428800);
     env
         .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
         .sinkTo(KafkaSink.<String>builder()
@@ -64,15 +64,16 @@ public class StreamJob {
                 .setValueSerializationSchema(new SimpleStringSchema())
                 .build())
             .setDeliverGuarantee(DeliveryGuarantee.EXACTLY_ONCE)
-            .setTransactionalIdPrefix(params.get(TRANSACTIONAL_ID))
+            .setTransactionalIdPrefix(generateTransId(params.get(JOB_NAME)))
             .setKafkaProducerConfig(properties)
             .build());
     env.execute(params.get(JOB_NAME));
   }
 
   private static void init(StreamExecutionEnvironment env) {
+    env.setParallelism(1);
     env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-    env.getCheckpointConfig().setCheckpointInterval(10*1000);
+    env.getCheckpointConfig().setCheckpointInterval(5*1000);
     env.getCheckpointConfig().setCheckpointTimeout(10*60*1000);
     env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5*1000);
   }
@@ -106,10 +107,13 @@ public class StreamJob {
     Preconditions.checkNotNull(params.get(TABLES), "tables can not be null");
     Preconditions.checkNotNull(params.get(USER_NAME), "user name can not be null");
     Preconditions.checkNotNull(params.get(PASSWORD), "password can not be null");
-    Preconditions.checkNotNull(params.get(TRANSACTIONAL_ID), "transactional.id can not be null");
     if (TIMESTAMP.equals(params.get(STARTUP_MODE))) {
       Preconditions.checkNotNull(params.get(TIMESTAMP), "when startup mode is timestamp, timestamp can not be null");
     }
     Preconditions.checkNotNull(params.get(BOOTSTRAP_SERVERS), "kafka bootstrap.servers can not be null");
+  }
+
+  private static String generateTransId(String s) {
+    return s + "_" + System.currentTimeMillis();
   }
 }
