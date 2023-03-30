@@ -1,5 +1,6 @@
 package com.gs.cdc2kafka.format;
 
+import com.gs.cdc2kafka.bean.GsKafka;
 import com.ververica.cdc.connectors.shaded.org.apache.kafka.connect.data.ConnectSchema;
 import com.ververica.cdc.connectors.shaded.org.apache.kafka.connect.data.Field;
 import com.ververica.cdc.connectors.shaded.org.apache.kafka.connect.data.Schema;
@@ -231,7 +232,8 @@ public class JsonConverter implements Serializable {
     return DateTimeUtils.toLocalTime(timeInt);
   }
 
-  public void addMeta(Struct source, ObjectNode objectNode, Envelope.Operation op) {
+  public GsKafka addMeta(Struct source, ObjectNode objectNode, Envelope.Operation op) {
+    GsKafka gsKafka = new GsKafka();
     String db = source.getString("db");
     String table = source.getString("table");
     ObjectNode cdcMeta = JSON_NODE_FACTORY.objectNode();
@@ -239,5 +241,9 @@ public class JsonConverter implements Serializable {
     cdcMeta.set("table_name", JSON_NODE_FACTORY.textNode(table));
     cdcMeta.set("operation", JSON_NODE_FACTORY.textNode(op.name()));
     objectNode.set("cdc_meta", cdcMeta);
+    gsKafka.setDbName(db);
+    gsKafka.setTableName(table);
+    gsKafka.setJsonNode(objectNode);
+    return gsKafka;
   }
 }

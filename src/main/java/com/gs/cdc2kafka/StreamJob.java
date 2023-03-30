@@ -1,5 +1,7 @@
 package com.gs.cdc2kafka;
 
+import com.gs.cdc2kafka.bean.GsKafka;
+import com.gs.cdc2kafka.format.ColumnProcess;
 import com.gs.cdc2kafka.format.GsDebeziumDeserializeSchema;
 import com.gs.cdc2kafka.kafka.KafkaTopicSelector;
 import com.ververica.cdc.connectors.mysql.source.MySqlSource;
@@ -35,7 +37,7 @@ public class StreamJob {
   public static void main(String[] args) throws Exception {
     ParameterTool params = ParameterTool.fromArgs(args);
     checkParam(params);
-    MySqlSourceBuilder<String> builder = MySqlSource.<String>builder()
+    MySqlSourceBuilder<GsKafka> builder = MySqlSource.<GsKafka>builder()
         .hostname(params.get(HOST))
         .port(params.getInt(PORT, 3306))
         .scanNewlyAddedTableEnabled(true)
@@ -47,7 +49,7 @@ public class StreamJob {
         .serverTimeZone(SERVER_TIME_ZONE)
         .deserializer(new GsDebeziumDeserializeSchema(SERVER_TIME_ZONE)); // 将 SourceRecord 转换为 JSON 字符串
 
-    MySqlSource<String> mySqlSource = buildStartup(builder, params).build();
+    MySqlSource<GsKafka> mySqlSource = buildStartup(builder, params).build();
     StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
     init(env);
 
@@ -57,6 +59,7 @@ public class StreamJob {
     properties.put("max.request.size", 52428800);
     env
         .fromSource(mySqlSource, WatermarkStrategy.noWatermarks(), "MySQL Source")
+        .map(new ColumnProcess())
         .sinkTo(KafkaSink.<String>builder()
             .setBootstrapServers(params.get(BOOTSTRAP_SERVERS))
             .setRecordSerializer(KafkaRecordSerializationSchema.builder()
@@ -73,12 +76,12 @@ public class StreamJob {
   private static void init(StreamExecutionEnvironment env) {
     env.setParallelism(1);
     env.getCheckpointConfig().setCheckpointingMode(CheckpointingMode.EXACTLY_ONCE);
-    env.getCheckpointConfig().setCheckpointInterval(5*1000);
+    env.getCheckpointConfig().setCheckpointInterval(3*1000);
     env.getCheckpointConfig().setCheckpointTimeout(10*60*1000);
-    env.getCheckpointConfig().setMinPauseBetweenCheckpoints(5*1000);
+    env.getCheckpointConfig().setMinPauseBetweenCheckpoints(1000);
   }
 
-  private static MySqlSourceBuilder<String> buildStartup(MySqlSourceBuilder<String> builder, ParameterTool params) {
+  private static MySqlSourceBuilder<GsKafka> buildStartup(MySqlSourceBuilder<GsKafka> builder, ParameterTool params) {
     String startupMode = params.get(STARTUP_MODE, "latest");
     switch (startupMode) {
       case "initial":
